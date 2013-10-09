@@ -8,6 +8,7 @@ import (
     "log"
     "io/ioutil"
     "strconv"
+    "fmt"
 )
 //google api
 func Crawl_google(page string) string{
