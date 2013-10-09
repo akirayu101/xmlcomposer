@@ -53,15 +53,8 @@ type AccessToken struct {
 
 func readHttpBody(response *http.Response) string {
 	fmt.Println("Reading body")
-	bodyBuffer := make([]byte, 1000)
-	var str string
-	count, err := response.Body.Read(bodyBuffer)
-	for ; count > 0; count, err = response.Body.Read(bodyBuffer) {
-		if err != nil {
-		}
-		str += string(bodyBuffer[:count])
-	}
-	return str
+	body, err := ioutil.ReadAll(resp.Body)
+	return string(body)
 }
 
 //Converts a code to an Auth_Token
