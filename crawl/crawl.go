@@ -59,7 +59,7 @@ func readHttpBody(response *http.Response) string {
 }
 
 //Converts a code to an Auth_Token
-func GetAccessToken(client_id string, code string, secret string, callbackUri string) AccessToken {
+func GetAccessToken() AccessToken {
 	fmt.Println("GetAccessToken")
 	//https://graph.facebook.com/oauth/access_token?client_id=YOUR_APP_ID&redirect_uri=YOUR_REDIRECT_URI&client_secret=YOUR_APP_SECRET&code=CODE_GENERATED_BY_FACEBOOK
 	response, err := http.Get("https://graph.facebook.com/oauth/access_token?grant_type=client_credentials&client_id=494717897285592&client_secret=30228f96eb5f6692d88bb41c184c6b59")
