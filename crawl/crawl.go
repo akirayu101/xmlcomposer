@@ -53,7 +53,7 @@ type AccessToken struct {
 
 func readHttpBody(response *http.Response) string {
 	fmt.Println("Reading body")
-	body, err := ioutil.ReadAll(resp.Body)
+	body, _ := ioutil.ReadAll(response.Body)
   fmt.Println(string(body))
 	return string(body)
 }
