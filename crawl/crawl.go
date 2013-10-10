@@ -2,6 +2,7 @@ package crawl
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -48,7 +49,6 @@ func DecodeGoogleImage(page string) {
 
 //facebook api
 func readHttpBody(response *http.Response) string {
-	fmt.Println("Reading body")
 	body, _ := ioutil.ReadAll(response.Body)
 	return string(body)
 }
@@ -63,6 +63,44 @@ func GetAccessToken() string {
 		content := readHttpBody(response)
 		token = strings.Split(content, "=")[1]
 	}
-
 	return token
+}
+
+type FacebookResult struct {
+	Name  string
+	Link  string
+	Likes int
+}
+
+type Subele struct {
+	Id string
+}
+type Dataslice struct {
+	Data []Subele
+}
+
+func facebookBasicSearch(id string) FacebookResult {
+	fmt.Println(id)
+    var res FacebookResult
+	response, err := http.Get("https://graph.facebook.com/"+id)
+	if err == nil {
+		content := readHttpBody(response)
+		json.Unmarshal([]byte(content), &res)   
+        fmt.Println(res)
+	}
+	return res
+
+}
+func FacebookAdvanceSearch(name string) []FacebookResult {
+	response, err := http.Get("https://graph.facebook.com/search?type=page&q=" + name + "&access_token=494717897285592|Xx8_UBMym26cqYEOOfZkwFG-Htk")
+	var fb_result []FacebookResult
+	if err == nil {
+		content := readHttpBody(response)
+		var result Dataslice
+		json.Unmarshal([]byte(content), &result)
+		for _, v := range result.Data {
+			fb_result = append(fb_result, facebookBasicSearch(v.Id))
+		}
+	}
+	return fb_result
 }
