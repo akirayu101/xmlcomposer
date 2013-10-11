@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+    "sort"
 )
 
 //google api
@@ -49,6 +50,7 @@ func DecodeGoogleImage(page string) {
 
 //facebook api
 func readHttpBody(response *http.Response) string {
+    defer response.Body.Close()
 	body, _ := ioutil.ReadAll(response.Body)
 	return string(body)
 }
@@ -72,6 +74,13 @@ type FacebookResult struct {
 	Likes int
 }
 
+type FacebookResults []FacebookResult
+
+func (s FacebookResults) Len() int { return len(s) }
+func (s FacebookResults) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+type ByLikes struct{ FacebookResults }
+func (s ByLikes) Less(i, j int) bool { return s.FacebookResults[i].Likes > s.FacebookResults[j].Likes }
+
 type Subele struct {
 	Id string
 }
@@ -80,20 +89,18 @@ type Dataslice struct {
 }
 
 func facebookBasicSearch(id string) FacebookResult {
-	fmt.Println(id)
     var res FacebookResult
 	response, err := http.Get("https://graph.facebook.com/"+id)
 	if err == nil {
 		content := readHttpBody(response)
 		json.Unmarshal([]byte(content), &res)   
-        fmt.Println(res)
 	}
 	return res
 
 }
-func FacebookAdvanceSearch(name string) []FacebookResult {
+func FacebookAdvanceSearch(name string) FacebookResults {
 	response, err := http.Get("https://graph.facebook.com/search?type=page&q=" + name + "&access_token=494717897285592|Xx8_UBMym26cqYEOOfZkwFG-Htk")
-	var fb_result []FacebookResult
+	var fb_result FacebookResults
 	if err == nil {
 		content := readHttpBody(response)
 		var result Dataslice
@@ -102,5 +109,7 @@ func FacebookAdvanceSearch(name string) []FacebookResult {
 			fb_result = append(fb_result, facebookBasicSearch(v.Id))
 		}
 	}
+    sort.Sort(ByLikes{fb_result})
+    fmt.Println(fb_result)
 	return fb_result
 }
